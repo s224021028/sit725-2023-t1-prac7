@@ -1,30 +1,22 @@
-const color_palette = ["indigo", "red", "pink", "purple", "green", "orange"]
-i = 0
+const socket = io()
 function changeColor() {
     const navbar = document.getElementById("navbar")
     const footer = document.getElementById("foot")
-    if (i >= color_palette.length - 1)
-    {
-        navbar.classList.replace(color_palette[i], color_palette[i % (color_palette.length - 1)])
-        footer.classList.replace(color_palette[i], color_palette[i % (color_palette.length - 1)])
-        i = 0
-    }
-    else
-    {
-        navbar.classList.replace(color_palette[i], color_palette[i % color_palette.length + 1])
-        footer.classList.replace(color_palette[i], color_palette[i % color_palette.length + 1])
-        i++
-    }
+    socket.emit("change_color")
+    socket.on("change_color", (color) => {
+        navbar.classList.replace(color.old, color.new)
+        footer.classList.replace(color.old, color.new)
+    })
 }
 
+var textInputElement
 function limitCharacters(element)
 {
-    const maxLength = 8
-    var numValue = element.value
-    if (numValue.length > maxLength)
-    {
-        element.value = numValue.substr(0, maxLength)
-    }
+    textInputElement = element
+    socket.emit("limit_characters", textInputElement.value)
+    socket.on("limit_characters", (newValue) => {
+        textInputElement.value = newValue
+    })
 }
 
 var isEmptyInput = false
@@ -120,5 +112,3 @@ $(function() {
     })
     getHistory()
 })
-
-module.exports = {limitCharacters}
